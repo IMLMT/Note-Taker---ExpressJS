@@ -1,12 +1,15 @@
 // Dependencies
 // =============================================================
-var express = require("express");
-var path = require("path");
+const express = require("express");
+const path = require("path");
+const fs = require("fs");
 
 // Sets up the Express App
 // =============================================================
 var app = express();
 var PORT = process.env.PORT || 3000;
+
+app.use("/assets", express.static(__dirname + "/assets"));
 
 // Sets up the Express app to handle data parsing
 app.use(express.urlencoded({ extended: true }));
@@ -64,38 +67,41 @@ app.get("/", function(req, res) {
     res.sendFile(path.join(__dirname, "index.html"));
 });
 
-app.get("/notes", function(req, res) {
+app.get("/notes.html", function(req, res) {
     res.sendFile(path.join(__dirname, "notes.html"));
 });
 
-
-
-
-// Displays all characters
-app.post("/api/tables", function(req, res) {
-    console.log(req);
-    var obj = {
-        customerName: req.body.customerName,
-        phoneNumber: req.body.phoneNumber,
-        customerEmail: req.body.customerEmail,
-        customerID: req.body.customerID
-    };
-    newReservation.push(obj);
+app.get("/api/notes", function(req, res) {
+    res.sendFile(path.join(__dirname, "db.json"));
 });
 
-app.get("/api/tables", function(req, res) {
-    return res.json(newReservation);
+
+// Where our notes are saved
+app.post("/api/notes", function(req, res) {
+    fs.readFile("./db.json", "utf8", function(err, data) {
+        if (err) {
+            console.log(err);
+        }
+        console.log(JSON.parse(data));
+        //Parsing file
+        let parsedData = JSON.parse(data);
+        parsedData.push(req.body);
+        //Giving the note a unique ID number
+        for (let note of parsedData) {
+            note.id = parsedData.indexOf(note) + 1;
+        }
+        //Writing newly generated database object to db.json
+        fs.writeFile("./db.json", JSON.stringify(parsedData), function(err) {
+            if (err) {
+                console.log(err);
+            }
+        });
+    });
 });
 
-app.post("/api/clear", function(req, res) {
-    console.log(req)
-    newReservation = [];
-});
-// if (newReservation)
 
-app.get("/api/waitlist", function(req, res) {
-    return res.json(newReservation.filter((ele, i) => { if (i > 4) return ele }));
-});
+
+
 // Starts the server to begin listening
 // =============================================================
 app.listen(PORT, function() {
