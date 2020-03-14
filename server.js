@@ -15,49 +15,6 @@ app.use("/assets", express.static(__dirname + "/assets"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Star Wars Characters (DATA)
-// =============================================================
-var newReservation = [{
-        customerName: 'test1',
-        phoneNumber: 'bsffbs',
-        customerID: 'bbf'
-    },
-    {
-        customerName: 'test2',
-        phoneNumber: 'bsffbs',
-        customerID: 'bbf'
-    },
-    {
-        customerName: 'test3',
-        phoneNumber: 'bsffbs',
-        customerID: 'bbf'
-    },
-    {
-        customerName: 'test4',
-        phoneNumber: 'bsffbs',
-        customerID: 'bbf'
-    },
-    {
-        customerName: 'test5',
-        phoneNumber: 'bsffbs',
-        customerID: 'bbf'
-    },
-    {
-        customerName: 'test6',
-        phoneNumber: 'bsffbs',
-        customerID: 'bbf'
-    },
-    {
-        customerName: 'test7',
-        phoneNumber: 'bsffbs',
-        customerID: 'bbf'
-    },
-    {
-        customerName: 'test8',
-        phoneNumber: 'bsffbs',
-        customerID: 'bbf'
-    }
-];
 
 // Routes
 // =============================================================
@@ -99,7 +56,29 @@ app.post("/api/notes", function(req, res) {
     });
 });
 
+app.delete("/api/notes/:id", function(req, res) {
+    let id = req.params.id;
+    let idInt = parseInt(id);
 
+    fs.readFile("./db.json", "utf8", function(err, data) {
+        if (err) {
+            console.log(err);
+        }
+        let dbArr = JSON.parse(data);
+
+        for (let note of dbArr) {
+            if (note.id === idInt) {
+                let newDB = dbArr.filter(note => note.id !== idInt);
+
+                fs.writeFile("./db.json", JSON.stringify(newDB), function(err) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+            }
+        }
+    });
+});
 
 
 // Starts the server to begin listening
