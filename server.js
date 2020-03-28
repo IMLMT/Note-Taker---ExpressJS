@@ -9,7 +9,8 @@ const fs = require("fs");
 var app = express();
 var PORT = process.env.PORT || 3000;
 
-app.use("/assets", express.static(__dirname + "/assets"));
+// app.use("/assets", express.static(__dirname + "/assets"));
+app.use(express.static('public'));
 
 // Sets up the Express app to handle data parsing
 app.use(express.urlencoded({ extended: true }));
